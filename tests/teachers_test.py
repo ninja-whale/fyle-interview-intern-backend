@@ -1,3 +1,5 @@
+from core.models.assignments import GradeEnum
+
 def test_get_assignments_teacher_1(client, h_teacher_1):
     response = client.get(
         '/teacher/assignments',
@@ -9,8 +11,6 @@ def test_get_assignments_teacher_1(client, h_teacher_1):
     data = response.json['data']
     for assignment in data:
         assert assignment['teacher_id'] == 1
-
-
 
 def test_get_assignments_teacher_2(client, h_teacher_2):
     response = client.get(
@@ -100,5 +100,29 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
     assert data['error'] == 'FyleError'
 
+# tests/teachers_test.py
+def test_teacher_grade_invalid_assignment(client, h_teacher_1):
+    response = client.post(
+        '/teacher/assignments/grade',
+        json={
+            'id': 999,  # Invalid assignment ID
+            'grade': GradeEnum.A.value
+        },
+        headers=h_teacher_1
+    )
+    assert response.status_code == 404
+    data = response.json
+    assert data['error'] == 'FyleError'
 
-
+def test_teacher_grade_already_graded_assignment(client, h_teacher_1):
+    response = client.post(
+        '/teacher/assignments/grade',
+        json={
+            'id': 1,  # Assuming this assignment is already graded
+            'grade': GradeEnum.B.value
+        },
+        headers=h_teacher_1
+    )
+    assert response.status_code == 400
+    data = response.json
+    assert data['error'] == 'FyleError'
