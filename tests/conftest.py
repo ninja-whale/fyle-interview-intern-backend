@@ -2,6 +2,9 @@ import pytest
 import json
 from tests import app
 
+from core.server import app
+app.app_context().push()
+
 
 @pytest.fixture
 def client():

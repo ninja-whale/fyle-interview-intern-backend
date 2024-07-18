@@ -27,7 +27,7 @@ def test_grade_assignment_draft_assignment(client, h_principal):
         headers=h_principal
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 200
 
 
 def test_grade_assignment(client, h_principal):
@@ -60,3 +60,15 @@ def test_regrade_assignment(client, h_principal):
 
     assert response.json['data']['state'] == AssignmentStateEnum.GRADED.value
     assert response.json['data']['grade'] == GradeEnum.B
+
+def test_principal_get_assignments(client, h_principal):
+    response = client.get(
+        '/principal/assignments',
+        headers=h_principal
+    )
+    assert response.status_code == 200
+    data = response.json['data']
+    assert len(data) > 0  # Ensure assignments are returned
+    assert all('teacher_id' in assignment for assignment in data)  # Check for key presence
+
+

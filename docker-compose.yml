@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_APP: "core/server.py"
+      FLASK_ENV: "development"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: "yourusername"
+      POSTGRES_PASSWORD: "yourpassword"
+      POSTGRES_DB: "yourdatabase"
+    ports:
+      - "5432:5432"
+
+  test:
+    build: .
+    environment:
+      FLASK_APP: "core/server.py"
+      FLASK_ENV: "testing"
+      DATABASE_URL: "postgresql://yourusername:yourpassword@db:5432/yourdatabase_test"
+    depends_on:
+      - db
+    command: ["pytest", "--maxfail=1", "--disable-warnings", "-vvv"]
